@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashy</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="description" content="A modern, minimalist dashboard application inspired by Apple's design language.">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'light-bg': '#FDF8F8',
+              'light-bg-secondary': '#FFFFFF',
+              'light-text': '#1a1a1a',
+              'light-text-secondary': '#6b7280',
+              'light-border': 'rgba(0, 0, 0, 0.08)',
+              'dark-bg': '#1E202B',
+              'dark-bg-secondary': '#292C3A',
+              'dark-text': '#e5e7eb',
+              'dark-text-secondary': '#9ca3af',
+              'dark-border': 'rgba(255, 255, 255, 0.1)',
+              'accent': '#D9C8FF',
+              'accent-dark': '#B092FF',
+              'accent-light': '#F1EBFF',
+              'glass-border': 'rgba(255, 255, 255, 0.1)',
+              'light-glass-border': 'rgba(0, 0, 0, 0.05)',
+            },
+            borderRadius: {
+              '4xl': '2rem',
+            },
+            boxShadow: {
+                'glass': 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.1), 0 2px 4px 0 rgba(0, 0, 0, 0.05)',
+            }
+          },
+        },
+      }
+    </script>
+    
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://aistudiocdn.com/react@^19.2.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "react-grid-layout": "https://aistudiocdn.com/react-grid-layout@^1.5.2",
+        "uuid": "https://aistudiocdn.com/uuid@^13.0.0",
+        "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1",
+        "framer-motion": "https://aistudiocdn.com/framer-motion@^12.23.24",
+        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.548.0",
+        "recharts": "https://aistudiocdn.com/recharts@^3.3.0",
+        "vite": "https://aistudiocdn.com/vite@^7.1.12",
+        "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.0"
+      }
+    }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+             body {
+                @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text font-sans;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+            .light body {
+                background-image: linear-gradient(to bottom right, #FFFFFF, #F1EBFF);
+            }
+            .dark body {
+                background-image: linear-gradient(to bottom right, #1E202B, #120F1F);
+            }
+        }
+
+        body {
+            overscroll-behavior: none;
+        }
+
+        /* Webkit scrollbar styles */
+        ::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background-color: rgba(156, 163, 175, 0.5); /* gray-400 with 50% opacity */
+          border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(156, 163, 175, 0.7);
+        }
+
+        /* Styles for react-grid-layout */
+        .react-grid-layout {
+          position: relative;
+          transition: height 200ms ease;
+        }
+        .react-grid-item {
+          transition: all 200ms ease;
+          transition-property: left, top, box-shadow;
+        }
+        .react-grid-item.cssTransforms {
+          transition-property: transform, box-shadow;
+        }
+        .react-grid-item.resizing {
+          z-index: 25 !important;
+          will-change: width, height;
+        }
+
+        .react-grid-item.react-draggable-dragging {
+          transition: none;
+          z-index: 20 !important;
+          will-change: transform;
+          box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25) !important;
+        }
+        
+        .is-dragging .react-grid-item {
+            box-shadow: none !important;
+        }
+
+        .react-grid-item.react-grid-placeholder {
+          background: #D9C8FF;
+          opacity: 0.2;
+          transition-duration: 100ms;
+          z-index: 2;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          -o-user-select: none;
+          user-select: none;
+          border-radius: 1rem; /* rounded-2xl */
+        }
+
+        /* Visible resize handle */
+        .react-grid-item .react-resizable-handle {
+            z-index: 100 !important;
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            bottom: 0;
+            right: 0;
+            cursor: se-resize;
+            background-image: url("data:image/svg+xml,%3csvg width='6' height='6' viewBox='0 0 6 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='1' cy='1' r='1' fill='%239ca3af'/%3e%3ccircle cx='5' cy='1' r='1' fill='%239ca3af'/%3e%3ccircle cx='1' cy='5' r='1' fill='%239ca3af'/%3e%3ccircle cx='5' cy='5' r='1' fill='%239ca3af'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: bottom 4px right 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        }
+        .react-grid-item:hover .react-resizable-handle {
+            opacity: 0.7;
+        }
+         .dark .react-grid-item .react-resizable-handle {
+            background-image: url("data:image/svg+xml,%3csvg width='6' height='6' viewBox='0 0 6 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='1' cy='1' r='1' fill='%23e5e7eb'/%3e%3ccircle cx='5' cy='1' r='1' fill='%23e5e7eb'/%3e%3ccircle cx='1' cy='5' r='1' fill='%23e5e7eb'/%3e%3ccircle cx='5' cy='5' r='1' fill='%23e5e7eb'/%3e%3c/svg%3e");
+        }
+        .react-resizable-handle::after {
+            display: none !important;
+        }
+        
+        .aurora-background {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .aurora-background::before, .aurora-background::after {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 150vmax;
+            height: 150vmax;
+            border-radius: 50%;
+            z-index: -2;
+            will-change: transform;
+            mix-blend-mode: overlay;
+            animation: rotate 20s linear infinite;
+        }
+        
+        .dark .aurora-background::before {
+            background: radial-gradient(circle, rgba(93, 72, 190, 0.2), transparent 50%);
+        }
+
+        .dark .aurora-background::after {
+            background: radial-gradient(circle, rgba(160, 52, 96, 0.2), transparent 50%);
+            animation-delay: -10s;
+        }
+        
+        .light .aurora-background::before {
+             background: radial-gradient(circle, rgba(239, 121, 138, 0.4), transparent 50%);
+        }
+        
+        .light .aurora-background::after {
+            background: radial-gradient(circle, rgba(255, 180, 150, 0.4), transparent 50%);
+            animation-delay: -10s;
+        }
+
+
+        @keyframes rotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.1); }
+            100% { transform: translate(-50%, -50%) rotate(360deg) scale(1); }
+        }
+        
+        .grainy-bg::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiGAAABhlBMVEUAAABNTU1OTk5QUFBVVVVXV1dYWFhZWVlaWlpcXFxdXV1gYGBhYWFiYmJjY2NkZGRlZWVmZmZnZ2doaGhpaWlqampra2tsbGxtbW1ubm5vb29xcXFycnJzc3N0dHR1dXV2dnZ3d3d4eHh5eXl6enp7e3t8fHx9fX1+fn5/f3+AgICBgYGCgoKCgoKDg4OEhISFhYWGhoaHh4eIiIiKioqLi4uMjIyNjY2Ojo6Pj4+QkJCRkZGSkpKTk5OUlJSVlZWWlpaXl5eYmJiZmZmampqbm5ucnJydnZ2enp6fn5+goKChoaGioqKkpKSlpaWmpqanp6eoqKipqamqqqqrq6usrKytra2urq6vr6+wsLCxsbGysrKzs7O0tLS1tbW2tra3t7e4uLi5ubm6urq7u7u8vLy9vb2+vr6/v7/AwMDBwcHCwsLDw8PExMTFxcXGxsbHx8fIyMjJycnKysrLy8vMzMzNzc3Ozs7Pz8/Q0NDR0dHS0tLT09PU1tbe3t7f39/g4ODh4eHi4uLj4+Pk5OTl5eXm5ubn5+fo6Ojp6enq6urr6+vs7Ozt7e3u7u7v7+/w8PDx8fHy8vLz8/P09PT19fX29vb39/f4+Pj5+fn6+vr7+/v8/Pz9/f3+/v7////i4sMKAAAAiXRSTlMAAQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyEiJCUnKiwsLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZISUxNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ucHFyc3R1dnd4eXp7fH1+f4CCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goqOkpaanqKmqq6ytrq+wsbKztLW2t7i5usTExsbHyMnKy8zNzs/Q0dLT1NXW19na29zd3t/h4uPk5ebn6Onq6+zt7u/x8/T19vf4+fr7/P3+EWNj2gAAAnBJREFUeNqV1fl/E0EQB/CXyeRkMvFDMpFNZDKZyCSgVEgkMhlJJJFIpL+MRENEMpmkgoim88P5zW7v7t29eze9N+n2+2/f23322d25SCAgRBAIBgJRECKEEAgiECAEEQgCEQwQhAQCgUAQECAIBgSCIAQhEIgAAoFAIBgQCAYgIAQCAUAQCAQCEAQCgUAQCAYgEAQCEAgGgSAQgMAoCEAIBAKBYADBUQgQEAgEAoFgwCEoBIIhEAiCQQiCgQAgGAQCEAiCQGAoEoJAIAhGEIgGIAiCQCCYgCAoEoJBEMLhMCEIBgRCIIQhGBSCQQiCYDAIBgSCYDAIAoEgGAQhEIoBAoFgEAQhEIJAIAgGBEKBYBAEAoFAIAgGBEKBYBCGgBAIBIIgiEAQCMIgCIIgiGCgEAgEQSCIQMCoRBAEQaCgEAiCYCiBQGAoCAYEQSCIgCAoEAIhCAYgCIIhQBAIBoVAYAgEQRAIgkAoFAgEAoVgwCEQhEIgiAgEg0AgCAYhEAiCYBCGQCAIBgRCIAhBiEAgCAZEoCAEASAQhCAQgUCEQAgQhEIQCIIgCAQhEAiCECAIBkUQCAgEQRCEIBCGQBAIgkAoEAgEQRCEQBACgSAQhEAgCAYIgkEoCIIgiEAgCAZGEAgCQSAQAoYhEAQhEAQhCCYgCIIhCAZEIAgGhSAQBIJBEMLhEBgKhEBIiAQCgSAhGAQhCAQhCAQCAUAQCAQCEAQCgUAQCAYgEAQCEAgGgSAQgMAoCEAIBAKBYADBUQiYc/A3hS4o1AaBUIhM7/9E/A3hW5fA0q9XQAAAAASUVORK5CYII=');
+            z-index: -1;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+</html>
